@@ -8,16 +8,27 @@ const io = new socketIo.Server(server, {
   },
 });
 
+interface Message {
+  body: string;
+  senderId: string;
+  nickname: string;
+}
+
 const NEW_CHAT_MESSAGE_EVENT = 'newChatMessage';
+
+const messageHistory: Message[] = [];
 
 io.on('connection', socket => {
   // Join a conversation
   const { roomId } = socket.handshake.query;
   socket.join(roomId);
 
+  // Emit previous messages
+  socket.emit('previoustMessages', messageHistory);
+
   // Listen for new messages
-  socket.on(NEW_CHAT_MESSAGE_EVENT, (data: any) => {
-    console.log(data);
+  socket.on(NEW_CHAT_MESSAGE_EVENT, (data: Message) => {
+    messageHistory.push(data);
     io.in(roomId).emit(NEW_CHAT_MESSAGE_EVENT, data);
   });
 
