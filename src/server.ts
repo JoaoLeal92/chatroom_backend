@@ -14,22 +14,34 @@ interface Message {
   nickname: string;
 }
 
-const NEW_CHAT_MESSAGE_EVENT = 'newChatMessage';
+interface MessageHistory {
+  [key: string]: Message[];
+}
 
-const messageHistory: Message[] = [];
+const messageHistory: MessageHistory = {};
 
 io.on('connection', socket => {
   // Join a conversation
   const { roomId } = socket.handshake.query;
+
+  // Creates a history for this chat
+  if (!Object.keys(messageHistory).includes(roomId)) {
+    messageHistory[roomId] = [];
+  }
+
+  console.log(roomId);
   socket.join(roomId);
+  console.log(messageHistory[roomId]);
 
   // Emit previous messages
-  socket.emit('previoustMessages', messageHistory);
+  socket.emit('previoustMessages', messageHistory[roomId]);
+
+  // socket.in(roomId).emit('welcomeMessage', 'Usuário entrou no chat');
 
   // Listen for new messages
-  socket.on(NEW_CHAT_MESSAGE_EVENT, (data: Message) => {
-    messageHistory.push(data);
-    io.in(roomId).emit(NEW_CHAT_MESSAGE_EVENT, data);
+  socket.on('newChatMessage', (data: Message) => {
+    messageHistory[roomId].push(data);
+    io.to(roomId).emit('newChatMessage', data);
   });
 
   // Leave the room if the user closes the socket
