@@ -1,8 +1,10 @@
+import IActiveUsersRepository from '../../repositories/IActiveUsersRepository';
+
 interface RoomUsers {
   [key: string]: string[];
 }
 
-export default class Users {
+class ActiveUsers implements IActiveUsersRepository {
   private users: RoomUsers = {};
 
   public addRoom(roomId: string): void {
@@ -23,3 +25,5 @@ export default class Users {
     return this.users[roomId];
   }
 }
+
+export default ActiveUsers;
