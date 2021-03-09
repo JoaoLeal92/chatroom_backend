@@ -5,7 +5,7 @@ export default class UsersController {
   public async create(request: Request, response: Response): Promise<Response> {
     const createUser = new CreateUserService();
 
-    const registeredUsersRepository = response.locals.push;
+    // const registeredUsersRepository = response.locals.push;
 
     const { name, email, dateOfBirth, password } = request.body;
 
@@ -14,7 +14,6 @@ export default class UsersController {
       email,
       dateOfBirth,
       password,
-      registeredUsersRepository,
     });
 
     return response.json(user);

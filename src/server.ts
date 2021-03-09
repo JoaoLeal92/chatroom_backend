@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { createServer } from 'http';
 import * as socketIo from 'socket.io';
 import express, { Request, Response, NextFunction } from 'express';
@@ -6,6 +7,7 @@ import bodyParser from 'body-parser';
 
 import ActiveUsersRepository from './repositories/ActiveUsersRepository';
 import routes from './routes';
+import './database';
 
 const app = express();
 app.use(bodyParser.json());

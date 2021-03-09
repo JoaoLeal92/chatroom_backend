@@ -1,23 +1,18 @@
-class RegisteredUser {
-  name: string;
+import { Entity, PrimaryColumn, Column } from 'typeorm';
 
+@Entity('registeredUsers')
+class RegisteredUser {
+  @PrimaryColumn()
   email: string;
 
+  @Column()
+  name: string;
+
+  @Column('time')
   dateOfBirth: Date;
 
+  @Column()
   hashedPassword: string;
-
-  constructor(
-    name: string,
-    email: string,
-    dateOfBirth: Date,
-    password: string,
-  ) {
-    this.name = name;
-    this.email = email;
-    this.dateOfBirth = dateOfBirth;
-    this.hashedPassword = password;
-  }
 }
 
 export default RegisteredUser;

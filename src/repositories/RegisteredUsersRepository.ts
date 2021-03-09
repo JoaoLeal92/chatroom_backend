@@ -1,23 +1,16 @@
-import ICreateUserDTO from '../dtos/ICreateUserDTO';
+import { EntityRepository, Repository } from 'typeorm';
+
 import RegisteredUser from '../models/RegisteredUser';
 
-class RegisteredUsersRepository {
-  private registeredUsers: RegisteredUser[];
+@EntityRepository(RegisteredUser)
+class RegisteredUsersRepository extends Repository<RegisteredUser> {
+  public async findByEmail(email: string): Promise<RegisteredUser | undefined> {
+    const user = await this.findOne({
+      where: { email },
+    });
 
-  constructor() {
-    this.registeredUsers = [];
-  }
-
-  public create(userData: ICreateUserDTO): RegisteredUser {
-    this.registeredUsers.push(userData);
-
-    return userData;
-  }
-
-  public findByEmail(email: string): RegisteredUser | undefined {
-    const user = this.registeredUsers.find(
-      userRegister => userRegister.email === email,
-    );
+    console.log('user: ', user);
+    console.log(await this.find());
 
     return user;
   }

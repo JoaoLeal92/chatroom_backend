@@ -1,3 +1,5 @@
+import { getCustomRepository } from 'typeorm';
+
 import RegisteredUsersRepository from '../repositories/RegisteredUsersRepository';
 import HashProvider from '../providers/BCryptHashProvider';
 import RegisteredUser from '../models/RegisteredUser';
@@ -7,7 +9,6 @@ interface ICreateUserDTO {
   name: string;
   dateOfBirth: Date;
   password: string;
-  registeredUsersRepository: RegisteredUsersRepository;
 }
 
 class CreateUserService {
@@ -16,10 +17,15 @@ class CreateUserService {
     email,
     password,
     dateOfBirth,
-    registeredUsersRepository,
   }: ICreateUserDTO): Promise<RegisteredUser> {
+    const registeredUsersRepository = getCustomRepository(
+      RegisteredUsersRepository,
+    );
+
     const hashProvider = new HashProvider();
-    const findUser = registeredUsersRepository.findByEmail(email);
+    const findUser = await registeredUsersRepository.findByEmail(email);
+
+    console.log('Achou usuário: ', findUser);
 
     if (findUser) {
       throw new Error('Email already in use');
@@ -34,42 +40,10 @@ class CreateUserService {
       dateOfBirth,
     });
 
+    await registeredUsersRepository.save(newUser);
+
     return newUser;
   }
 }
 
 export default CreateUserService;
-
-// class CreateUserService {
-//   private name: string;
-
-//   private email: string;
-
-//   private password: string;
-
-//   private dateOfBirth: Date;
-
-//   private registeredUsersRepository: RegisteredUsersRepository;
-
-//   constructor({
-//     name,
-//     email,
-//     password,
-//     dateOfBirth,
-//     registeredUsersRepository,
-//   }: ICreateUserDTO) {
-//     this.name = name;
-//     this.email = email;
-//     this.password = password;
-//     this.dateOfBirth = dateOfBirth;
-//     this.registeredUsersRepository = registeredUsersRepository;
-//   }
-
-//   public execute(): void {
-//     const findUser = this.registeredUsersRepository.findByEmail(this.email);
-
-//     if (findUser) {
-//       throw new Error('Email already in use');
-//     }
-//   }
-// }

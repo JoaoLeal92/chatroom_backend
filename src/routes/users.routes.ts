@@ -6,13 +6,6 @@ const usersRouter = Router();
 const usersController = new UsersController();
 const registerUsersRepository = new RegisteredUsersRepository();
 
-usersRouter.post(
-  '/',
-  function passRepo(req, res, next) {
-    res.locals.push = registerUsersRepository;
-    next();
-  },
-  usersController.create,
-);
+usersRouter.post('/', usersController.create);
 
 export default usersRouter;
