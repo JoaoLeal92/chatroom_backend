@@ -1,7 +1,6 @@
 import { getCustomRepository } from 'typeorm';
 
 import RegisteredUsersRepository from '../repositories/RegisteredUsersRepository';
-import RegisteredUser from '../models/RegisteredUser';
 
 interface ResponseUser {
   name: string;
