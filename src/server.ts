@@ -1,8 +1,26 @@
 import { createServer } from 'http';
 import * as socketIo from 'socket.io';
-import Users from './repositories/users';
+import express, { Request, Response, NextFunction } from 'express';
+import 'express-async-errors';
+import bodyParser from 'body-parser';
 
-const server = createServer();
+import ActiveUsersRepository from './repositories/ActiveUsersRepository';
+import routes from './routes';
+
+const app = express();
+app.use(bodyParser.json());
+app.use(routes);
+
+app.use((err: Error, request: Request, response: Response, _: NextFunction) => {
+  console.error(err);
+
+  return response.status(500).json({
+    status: 'error',
+    message: err.message,
+  });
+});
+
+const server = createServer(app);
 const io = new socketIo.Server(server, {
   cors: {
     origin: '*',
@@ -20,20 +38,24 @@ interface MessageHistory {
 }
 
 const messageHistory: MessageHistory = {};
-const usersRepository = new Users();
+const activeUsersRepository = new ActiveUsersRepository();
+
+app.get('/', (req, res) => {
+  res.send({ hello: 'world' });
+});
 
 io.on('connection', socket => {
   // Join a conversation
   const { roomId, username } = socket.handshake.query;
 
-  const activeUsers = usersRepository.getAllUsers(roomId);
+  const activeUsers = activeUsersRepository.getAllUsers(roomId);
 
   if (!activeUsers) {
-    usersRepository.addRoom(roomId);
+    activeUsersRepository.addRoom(roomId);
   }
 
   if (activeUsers && !activeUsers.includes(username)) {
-    usersRepository.addUser(roomId, username);
+    activeUsersRepository.addUser(roomId, username);
 
     const welcomeMessage = {
       nickname: 'ChatPlan Bot',
@@ -67,7 +89,7 @@ io.on('connection', socket => {
   });
 
   socket.on('leaveRoom', (nickname: string) => {
-    usersRepository.removeUser(roomId, nickname);
+    activeUsersRepository.removeUser(roomId, nickname);
 
     const leaveMessage = {
       nickname: 'ChatPlan Bot',
