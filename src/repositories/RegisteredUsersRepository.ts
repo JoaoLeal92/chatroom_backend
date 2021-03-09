@@ -9,9 +9,6 @@ class RegisteredUsersRepository extends Repository<RegisteredUser> {
       where: { email },
     });
 
-    console.log('user: ', user);
-    console.log(await this.find());
-
     return user;
   }
 }
