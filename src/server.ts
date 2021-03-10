@@ -4,12 +4,14 @@ import * as socketIo from 'socket.io';
 import express, { Request, Response, NextFunction } from 'express';
 import 'express-async-errors';
 import bodyParser from 'body-parser';
+import cors from 'cors';
 
 import ActiveUsersRepository from './repositories/ActiveUsersRepository';
 import routes from './routes';
 import './database';
 
 const app = express();
+app.use(cors());
 app.use(bodyParser.json());
 app.use(routes);
 
@@ -42,10 +44,6 @@ interface MessageHistory {
 const messageHistory: MessageHistory = {};
 const activeUsersRepository = new ActiveUsersRepository();
 
-app.get('/', (req, res) => {
-  res.send({ hello: 'world' });
-});
-
 io.on('connection', socket => {
   // Join a conversation
   const { roomId, username } = socket.handshake.query;
@@ -66,7 +64,7 @@ io.on('connection', socket => {
     };
     io.to(roomId).emit('newChatMessage', welcomeMessage);
   }
-  console.log(activeUsers);
+  // console.log(activeUsers);
 
   // Creates a history for this chat
   if (!Object.keys(messageHistory).includes(roomId)) {
@@ -104,7 +102,6 @@ io.on('connection', socket => {
 
   // Leave the room if the user closes the socket
   socket.on('disconnect', () => {
-    console.log('fechou');
     socket.leave(roomId);
   });
 });
