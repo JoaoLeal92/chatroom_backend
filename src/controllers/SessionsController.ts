@@ -20,7 +20,7 @@ export default class SessionsController {
     };
 
     return response.json({
-      userResponse,
+      user: userResponse,
       token,
     });
   }
