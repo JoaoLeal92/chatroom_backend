@@ -1,6 +1,6 @@
 {
   "type": "sqlite",
-  "dropSchema": true,
+  "dropSchema": false,
   "database": "database.sqlite",
   "synchronize": true,
   "logging": false,
