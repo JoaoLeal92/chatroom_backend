@@ -25,8 +25,6 @@ class CreateUserService {
     const hashProvider = new HashProvider();
     const findUser = await registeredUsersRepository.findByEmail(email);
 
-    console.log('Achou usuário: ', findUser);
-
     if (findUser) {
       throw new Error('Email already in use');
     }
