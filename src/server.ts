@@ -14,7 +14,6 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(routes);
-
 app.use((err: Error, request: Request, response: Response, _: NextFunction) => {
   console.error(err);
 
@@ -49,6 +48,7 @@ io.on('connection', socket => {
   const { roomId, username } = socket.handshake.query;
 
   const activeUsers = activeUsersRepository.getAllUsers(roomId);
+  io.to(roomId).emit('usersInRoom', activeUsersRepository.getAllUsers(roomId));
 
   if (!activeUsers) {
     activeUsersRepository.addRoom(roomId);
@@ -80,7 +80,7 @@ io.on('connection', socket => {
 
   // socket.in(roomId).emit('newChatMessage', welcomeMessage);
 
-  socket.broadcast.emit();
+  // socket.broadcast.emit();
 
   // Listen for new messages
   socket.on('newChatMessage', (data: Message) => {
@@ -97,6 +97,10 @@ io.on('connection', socket => {
       senderId: 'chatPlanBotId',
     };
     io.to(roomId).emit('newChatMessage', leaveMessage);
+    io.to(roomId).emit(
+      'usersInRoom',
+      activeUsersRepository.getAllUsers(roomId),
+    );
     socket.leave(roomId);
   });
 
