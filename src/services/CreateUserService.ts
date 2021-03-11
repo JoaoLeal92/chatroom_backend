@@ -12,17 +12,31 @@ interface ICreateUserDTO {
 }
 
 class CreateUserService {
+  public getUsersRepository(repo: any): any {
+    const registeredUsersRepository = getCustomRepository(repo);
+
+    return registeredUsersRepository;
+  }
+
+  public getHashProvider(Provider: any): any {
+    return new Provider();
+  }
+
   public async execute({
     name,
     email,
     password,
     dateOfBirth,
   }: ICreateUserDTO): Promise<RegisteredUser> {
-    const registeredUsersRepository = getCustomRepository(
+    // const registeredUsersRepository = getCustomRepository(
+    //   RegisteredUsersRepository,
+    // );
+    const registeredUsersRepository = this.getUsersRepository(
       RegisteredUsersRepository,
     );
 
-    const hashProvider = new HashProvider();
+    // const hashProvider = new HashProvider();
+    const hashProvider = this.getHashProvider(HashProvider);
     const findUser = await registeredUsersRepository.findByEmail(email);
 
     if (findUser) {
