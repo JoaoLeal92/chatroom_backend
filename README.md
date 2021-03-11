@@ -38,6 +38,11 @@ Start the server on localhost
 $ yarn dev:server
 ```
 
+### Run tests
+```
+$ yarn test
+```
+
 ## Application routes
 
 ### Create user
