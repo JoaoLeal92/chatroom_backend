@@ -11,6 +11,7 @@ import routes from './routes';
 import './database';
 
 const app = express();
+
 app.use(cors());
 app.use(bodyParser.json());
 app.use(routes);
@@ -23,6 +24,7 @@ app.use((err: Error, request: Request, response: Response, _: NextFunction) => {
   });
 });
 
+// Socket connection and server
 const server = createServer(app);
 const io = new socketIo.Server(server, {
   cors: {
@@ -45,11 +47,13 @@ io.on('connection', socket => {
   let roomsRelation = roomsRepository.getRoomsInfo();
 
   if (username === 'homePage' && roomId === 'homePage') {
+    // Emits rooms info for home page
     io.emit('roomsInfo', roomsRelation);
   } else {
     let activeUsers = roomsRepository.getAllUsersInRoom(roomId);
 
     if (!activeUsers) {
+      // Creates new room and add user to ir
       roomsRepository.createRoom(roomId);
       roomsRepository.addUserToRoom(roomId, username);
 
@@ -62,6 +66,7 @@ io.on('connection', socket => {
     io.to(roomId).emit('usersInRoom', activeUsers);
 
     if (activeUsers && !activeUsers.includes(username)) {
+      // Add user to chat room and emits welcome message
       roomsRepository.addUserToRoom(roomId, username);
 
       const welcomeMessage = {
@@ -74,7 +79,7 @@ io.on('connection', socket => {
 
     socket.join(roomId);
 
-    // Emit previous messages
+    // Emit message heisoty to new user
     socket.emit('previoustMessages', roomsRepository.getMessageHistory(roomId));
 
     // Listen for new messages
@@ -83,6 +88,7 @@ io.on('connection', socket => {
       io.to(roomId).emit('newChatMessage', data);
     });
 
+    // Removes user from current room
     socket.on('leaveRoom', (nickname: string) => {
       roomsRepository.removeUserFromRoom(roomId, nickname);
 
@@ -103,6 +109,7 @@ io.on('connection', socket => {
         roomsRepository.getAllUsersInRoom(roomId),
       );
 
+      // Emits updated room info for home page
       roomsRelation = roomsRepository.getRoomsInfo();
 
       io.emit('roomsInfo', roomsRelation);
